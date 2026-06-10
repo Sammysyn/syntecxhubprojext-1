@@ -1,0 +1,33 @@
+// ── Data types ──────────────────────────────────────────────
+type CellType  = "empty" | "wall" | "start" | "goal"
+type CellState = "unvisited" | "frontier" | "visited" | "path"
+
+// ── Heuristics ───────────────────────────────────────────────
+manhattanDistance(a, b) → |a.row - b.row| + |a.col - b.col|
+euclideanDistance(a, b) → √((a.row-b.row)² + (a.col-b.col)²)
+
+// ── Core A* loop ─────────────────────────────────────────────
+runAstar(grid, start, goal, heuristic):
+  gScore[start] = 0
+  fScore[start] = h(start, goal)
+  frontier = MinHeap sorted by fScore   ← priority queue
+
+  while frontier not empty:
+    current = frontier.pop()            ← lowest f(n) node
+    if current == goal:
+      return reconstructPath()          ← trace parents back
+
+    for each neighbor (up/down/left/right):
+      if wall or already visited → skip
+      tentativeG = gScore[current] + 1
+      if tentativeG < gScore[neighbor]:
+        parent[neighbor] = current
+        gScore[neighbor] = tentativeG
+        fScore[neighbor] = tentativeG + h(neighbor, goal)
+        frontier.push(neighbor)
+
+  return UNREACHABLE                    ← goal not reachable
+
+// ── MinHeap ──────────────────────────────────────────────────
+// Custom binary min-heap so the frontier always pops the
+// node with the lowest f = g + h score in O(log n)
